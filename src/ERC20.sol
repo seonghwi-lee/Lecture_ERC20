@@ -10,9 +10,9 @@ contract ERC20 {
     string private _symbol;
     uint8 private _decimals;
 
-    constructor() {
-        _name = "DREAM";
-        _symbol = "DRM";
+    constructor(string memory __name, string memory __symbol) {
+        _name = __name;
+        _symbol = __symbol;
         _decimals = 18;
         _mint(msg.sender, 100 ether);
     }
@@ -81,16 +81,18 @@ contract ERC20 {
         address _to,
         uint256 _value
     ) public returns (bool success) {
+        require(_from != address(0), "trnasfer from the zero address");
         require(_to != address(0), "trnasfer to the zero address");
         require(
             allowances[_from][msg.sender] >= _value,
             "value exceeds balance"
         );
         require(balances[_from] >= _value, "value exceeds balance");
-
-        balances[_from] -= _value;
-        balances[_to] += _value;
-        allowances[_from][msg.sender] -= _value;
+        unchecked {
+            balances[_from] -= _value;
+            balances[_to] += _value;
+            allowances[_from][msg.sender] -= _value;
+        }
 
         emit Transfer(_from, _to, _value);
     }
